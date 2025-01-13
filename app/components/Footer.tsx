@@ -9,7 +9,7 @@ const Footer = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        © 2023 The Lost Shadow. All rights reserved.
+        © 2025 The Lost Shadow. All rights reserved.
       </motion.p>
     </footer>
   )

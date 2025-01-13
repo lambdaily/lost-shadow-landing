@@ -5,6 +5,7 @@
   import Link from 'next/link'
 
   const menuItems = [
+    { title: "SINGLE PLAYER", href: "#" },
     { title: "MULTIPLAYER", href: "#" },
     { title: "OPTIONS", href: "#" },
     { title: "QUIT GAME", href: "#" },
@@ -53,7 +54,7 @@
               alt="The Lost Shadow Banner"
               width={800}
               height={453}
-              className="w-[60%] h-auto"
+              className="w-[100%] md:w-[50%] h-auto"
             />
           </motion.div>
           <motion.div
@@ -71,7 +72,7 @@
               >
                 <Link
                   href={item.href}
-                  className="block text-2xl font-bold text-white hover:text-purple-400 transition duration-300"
+                  className="block text-lg md:text-2xl font-bold text-white hover:text-purple-400 transition duration-300"
                 >
                   {item.title}
                 </Link>

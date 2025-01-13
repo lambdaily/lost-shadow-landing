@@ -1,75 +1,96 @@
-import { motion } from 'framer-motion'
+import { useRef, useEffect } from 'react';
 
 const BackgroundElements = () => {
-  return (
-    <div className="fixed inset-0 overflow-hidden">
-      {[...Array(5)].map((_, index) => (
-        <motion.div
-          key={index}
-          className="absolute bg-white opacity-10 rounded-full"
-          style={{
-            width: `${Math.random() * 200 + 100}px`,
-            height: `${Math.random() * 100 + 50}px`,
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            x: [0, Math.random() * 400 - 200],
-            y: [0, Math.random() * 200 - 100],
-          }}
-          transition={{
-            duration: Math.random() * 60 + 30,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "linear"
-          }}
-        />
-      ))}
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-4 h-4 bg-purple-500 rounded-full"
-        animate={{
-          scale: [1, 2, 1],
-          opacity: [0.5, 1, 0.5],
-          x: [0, 100, 0],
-          y: [0, -100, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-      <motion.div
-        className="absolute top-3/4 right-1/4 w-6 h-6 bg-blue-500 rounded-full"
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.5, 1, 0.5],
-          x: [0, -150, 0],
-          y: [0, 150, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 left-1/2 w-3 h-3 bg-green-500 rounded-full"
-        animate={{
-          scale: [1, 2.5, 1],
-          opacity: [0.5, 1, 0.5],
-          x: [0, 200, 0],
-          y: [0, 100, 0],
-        }}
-        transition={{
-          duration: 30,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
-    </div>
-  )
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        class Cloud {
+            lightningVisible = false;
+            lightningFrames = 0;
+            lightningPath = [];
+
+            constructor(public x: number, public y: number, public size: number, public speed: number) {}
+
+            drawLightning() {
+                this.lightningPath = []; // reset the path for new lightning
+                let x = this.x;
+                let y = this.y + this.size / 2; // Starting y from bottom of cloud
+                this.lightningPath.push({ x, y });
+                while (y < canvas.height) {
+                    const dx = (Math.random() - 0.5) * 30;
+                    const dy = Math.random() * 15 + 10;
+                    x += dx;
+                    y += dy;
+                    this.lightningPath.push({ x, y });
+                }
+                this.lightningVisible = true;
+                this.lightningFrames = 30; // control the duration of lightning visibility
+            }
+
+            renderLightning() {
+                if (!this.lightningVisible) return;
+                ctx.beginPath();
+                ctx.moveTo(this.lightningPath[0].x, this.lightningPath[0].y);
+                this.lightningPath.forEach(point => {
+                    ctx.lineTo(point.x, point.y);
+                });
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                this.lightningFrames--;
+                if (this.lightningFrames <= 0) {
+                    this.lightningVisible = false;
+                }
+            }
+
+            update() {
+                this.x += this.speed * (Math.random() > 0.5 ? 1 : -1);
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.speed = -this.speed; // reverse direction if hitting bounds
+                }
+
+                this.renderLightning(); // render existing lightning if visible
+
+                // Intermittently draw new lightning
+                if (Math.random() < 0.001) {
+                    this.drawLightning();
+                }
+            }
+        }
+
+        const clouds = Array.from({length: 10}, () => new Cloud(Math.random() * canvas.width, 50, Math.random() * 70 + 30, Math.random() * 2 + 1));
+
+        function animate() {
+            ctx.fillStyle = '#3f3a57'; // Setting the original background color
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            clouds.forEach(cloud => {
+                cloud.update();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.fillStyle = '#3f3a57'; // Reapply background color on resize
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+    }, []);
+
+    return (
+        <div className="fixed inset-0 overflow-hidden">
+            <canvas ref={canvasRef} className="absolute inset-0 w-full h-full"></canvas>
+        </div>
+    );
 }
 
-export default BackgroundElements
-
+export default BackgroundElements;
