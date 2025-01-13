@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const Header = () => {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
     <header className="py-6 px-4 sm:px-6 lg:px-8 absolute w-full z-30">
       <nav className="flex justify-between items-center max-w-7xl mx-auto">
@@ -14,14 +18,24 @@ const Header = () => {
             className="h-12 w-auto"
           />
         </Link>
-        <div className="space-x-4">
+        <div className="hidden md:flex space-x-4 font-bold">
           <Link href="#features" className="hover:text-gray-300 transition duration-300">Features</Link>
           <Link href="#" className="hover:text-gray-300 transition duration-300">About</Link>
         </div>
+        <div className="md:hidden">
+          <button onClick={() => setIsOpen(!isOpen)} aria-label="Menu">
+            {isOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+          </button>
+        </div>
       </nav>
+      {isOpen && (
+        <div className="md:hidden">
+          <Link href="#features" className="block px-4 py-2 hover:text-gray-300 transition duration-300">Features</Link>
+          <Link href="#" className="block px-4 py-2 hover:text-gray-300 transition duration-300">About</Link>
+        </div>
+      )}
     </header>
-  )
+  );
 }
 
 export default Header
-
